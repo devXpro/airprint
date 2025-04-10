@@ -21,23 +21,53 @@ useradd -r -G lpadmin -m $CUPS_USER 2>/dev/null || true
 echo "${CUPS_USER}:${CUPS_PASSWORD}" | chpasswd
 echo "CUPS admin user configured."
 
-# Update Avahi service configuration with correct hostname
-echo "Updating Avahi service configuration with hostname: ${HOST_NAME}"
-sed -i "s/localhost/${HOST_NAME}/g" /etc/avahi/services/airprint.service
-sed -i "s/%h/${HOST_NAME}/g" /etc/avahi/services/airprint.service
+# Create the Avahi service file for AirPrint with proper replacements
+echo "Creating Avahi service file for AirPrint..."
+mkdir -p /avahi-services
 
-# Ensure hostname is set properly for Avahi by creating /etc/hostname with the proper hostname
-echo "${HOST_NAME}" > /etc/hostname
-hostname "${HOST_NAME}"
+cat > /avahi-services/airprint.service << EOL
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name replace-wildcards="yes">AirPrint ${PRINTER_NAME} @ ${HOST_NAME}</name>
+  <service>
+    <type>_ipp._tcp</type>
+    <subtype>_universal._sub._ipp._tcp</subtype>
+    <port>631</port>
+    <txt-record>txtver=1</txt-record>
+    <txt-record>qtotal=1</txt-record>
+    <txt-record>rp=printers/${PRINTER_NAME}</txt-record>
+    <txt-record>ty=${PRINTER_INFO}</txt-record>
+    <txt-record>adminurl=http://${HOST_NAME}:631/printers/${PRINTER_NAME}</txt-record>
+    <txt-record>note=${PRINTER_INFO}</txt-record>
+    <txt-record>priority=0</txt-record>
+    <txt-record>product=(GPL Ghostscript)</txt-record>
+    <txt-record>printer-state=3</txt-record>
+    <txt-record>printer-type=0x809C</txt-record>
+    <txt-record>Transparent=T</txt-record>
+    <txt-record>Binary=T</txt-record>
+    <txt-record>Fax=F</txt-record>
+    <txt-record>Color=T</txt-record>
+    <txt-record>Duplex=F</txt-record>
+    <txt-record>Staple=F</txt-record>
+    <txt-record>Copies=T</txt-record>
+    <txt-record>Collate=F</txt-record>
+    <txt-record>Punch=F</txt-record>
+    <txt-record>Bind=F</txt-record>
+    <txt-record>Sort=F</txt-record>
+    <txt-record>Scan=F</txt-record>
+    <txt-record>pdl=application/octet-stream,application/pdf,application/postscript,image/jpeg,image/png,image/urf</txt-record>
+    <txt-record>URF=W8,SRGB24,CP1,RS600</txt-record>
+  </service>
+</service-group>
+EOL
+
+echo "Avahi service file created at /avahi-services/airprint.service"
 
 # Disable SSL/TLS in CUPS to force only http:// URLs (no https://)
 echo "Disabling SSL in CUPS to prevent IPPS protocol usage"
 sed -i 's/^EnableSSL.*/EnableSSL No/' /etc/cups/cupsd.conf
 echo "DefaultEncryption Never" >> /etc/cups/cupsd.conf
-
-# Also add explicit rule to prevent IPPS advertising from Avahi
-echo "Checking for any other Avahi service files that might advertise IPPS..."
-rm -f /etc/avahi/services/*ipps*.service 2>/dev/null || true
 
 # Disable cups-browsed service which may be auto-registering IPPS
 echo "Disabling cups-browsed service (if installed)..."
@@ -61,32 +91,7 @@ if [ -f /etc/cups/cups-browsed.conf ]; then
   fi
 fi
 
-# Start Avahi daemon but handle MacOS host network differently
-echo "Starting Avahi daemon..."
-# Clean any existing PID files that might cause problems
-mkdir -p /run/dbus
-rm -f /run/dbus/pid
-mkdir -p /run/avahi-daemon
-rm -f /run/avahi-daemon/pid
-
-# Start dbus first (required for Avahi)
-dbus-daemon --system &
-DBUS_PID=$!
-sleep 3  # Give dbus more time to start
-
-# Start Avahi daemon
-avahi-daemon --no-chroot &
-AVAHI_PID=$!
-sleep 3  # Give avahi more time to start
-
-# Verify avahi is running
-if ! pgrep avahi-daemon > /dev/null; then
-    echo "ERROR: avahi-daemon failed to start"
-else
-    echo "avahi-daemon is running"
-fi
-
-# Now start CUPS after Avahi is fully established
+# Now start CUPS
 echo "Starting CUPS daemon..."
 mkdir -p /run/cups  # Ensure directory exists
 rm -f /run/cups/cupsd.pid  # Remove stale PID file if exists
@@ -146,5 +151,5 @@ echo "CUPS admin login: ${CUPS_USER} / ${CUPS_PASSWORD}"
 
 # Keep the container running
 echo "Services started. Press Ctrl+C to stop..."
-wait $CUPS_PID $AVAHI_PID $DBUS_PID
+wait $CUPS_PID
 

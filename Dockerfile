@@ -18,9 +18,6 @@ RUN apt-get update && apt-get install -y \
     cups \
     cups-client \
     cups-filters \
-    avahi-daemon \
-    avahi-discover \
-    libnss-mdns \
     dbus \
     curl \
     wget \
@@ -52,9 +49,6 @@ RUN sed -i 's/Listen localhost:631/Listen 0.0.0.0:631/' /etc/cups/cupsd.conf && 
 # Add lpadmin group to manage printers
 RUN usermod -a -G lpadmin root
 
-# Configure Avahi
-COPY avahi-airprint.conf /etc/avahi/services/airprint.service
-
 # Create entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
@@ -63,7 +57,6 @@ RUN chmod +x /entrypoint.sh
 RUN rm -f /tmp/epson-inkjet-printer-escpr_1.8.6_armhf.deb
 
 EXPOSE 631/tcp
-EXPOSE 5353/udp
 
 ENTRYPOINT ["/entrypoint.sh"]
 

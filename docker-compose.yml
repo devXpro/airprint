@@ -8,7 +8,10 @@ services:
     container_name: epson-airprint
     restart: unless-stopped
     hostname: ${HOST_NAME} # Set container hostname to match HOST_NAME
-    network_mode: "host"  # Use host network for better mDNS/Avahi support
+    ports:
+      - "631:631" # Expose CUPS port
+    volumes:
+      - /etc/avahi/services:/avahi-services # Mount host avahi services directory directly
     privileged: true # Required for CUPS to access USB devices (if needed)
     environment:
       - PRINTER_IP=${PRINTER_IP} # Epson L3250 IP address
