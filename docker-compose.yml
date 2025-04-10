@@ -8,7 +8,7 @@ services:
     container_name: epson-airprint
     restart: unless-stopped
     hostname: ${HOST_NAME} # Set container hostname to match HOST_NAME
-    # Using bridged network with explicit port mapping for macOS testing
+    network_mode: "host"  # Use host network for better mDNS/Avahi support
     privileged: true # Required for CUPS to access USB devices (if needed)
     environment:
       - PRINTER_IP=${PRINTER_IP} # Epson L3250 IP address
@@ -18,8 +18,8 @@ services:
       - HOST_NAME=${HOST_NAME} # Your host name (e.g., pi.local for Raspberry Pi)
       - CUPS_USER=${CUPS_USER} # User for CUPS web interface
       - CUPS_PASSWORD=${CUPS_PASSWORD} # Password for CUPS web interface
-    # Add ports with "0" at the end to avoid conflicts with system ports
-    ports:
-      - "${CUPS_PORT}:631"
-      - "${MDNS_PORT}:5353/udp" 
+    # Ports aren't needed with host network mode, but we'll keep them commented for reference
+    # ports:
+    #   - "${CUPS_PORT}:631"
+    #   - "${MDNS_PORT}:5353/udp"
 

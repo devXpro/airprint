@@ -38,7 +38,28 @@ echo "DefaultEncryption Never" >> /etc/cups/cupsd.conf
 # Also add explicit rule to prevent IPPS advertising from Avahi
 echo "Checking for any other Avahi service files that might advertise IPPS..."
 rm -f /etc/avahi/services/*ipps*.service 2>/dev/null || true
-# We're not creating a no-ipps.service file anymore as it caused errors
+
+# Disable cups-browsed service which may be auto-registering IPPS
+echo "Disabling cups-browsed service (if installed)..."
+if dpkg -l cups-browsed > /dev/null 2>&1; then
+  echo "cups-browsed found, stopping and disabling it..."
+  systemctl stop cups-browsed 2>/dev/null || true
+  systemctl disable cups-browsed 2>/dev/null || true
+  killall cups-browsed 2>/dev/null || true
+fi
+
+# Additional fixes for IPPS record issues
+if [ -f /etc/cups/cups-browsed.conf ]; then
+  echo "Configuring cups-browsed to disable IPPS..."
+  # Backup original config
+  cp /etc/cups/cups-browsed.conf /etc/cups/cups-browsed.conf.bak
+  # Disable IPPS protocol
+  sed -i 's/^IPPSEnable.*/IPPSEnable No/' /etc/cups/cups-browsed.conf
+  # If the option doesn't exist, add it
+  if ! grep -q "IPPSEnable" /etc/cups/cups-browsed.conf; then
+    echo "IPPSEnable No" >> /etc/cups/cups-browsed.conf
+  fi
+fi
 
 # Start Avahi daemon but handle MacOS host network differently
 echo "Starting Avahi daemon..."
