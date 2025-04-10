@@ -25,6 +25,8 @@ CUPS_PASSWORD=admin       # CUPS web interface password
 
 2. Ensure your host machine has Avahi daemon installed and running:
 
+> Note: On Debian-based distributions and Raspberry Pi OS, Avahi daemon is typically pre-installed, so you may skip this step.
+
 ```bash
 # For Debian/Ubuntu/Raspberry Pi OS
 sudo apt update
@@ -60,37 +62,3 @@ http://<your-host-ip>:631
 ```
 
 Use the CUPS_USER and CUPS_PASSWORD from your .env file to log in.
-
-## Troubleshooting
-
-- Make sure your printer is powered on and connected to the network
-- Verify that the printer IP in .env is correct
-- Check container logs: `docker compose logs`
-- Check Avahi logs: `journalctl -u avahi-daemon`
-- Ensure that port 631 is not blocked by a firewall
-
-## Fixing SSH Connectivity Issues
-
-If you're experiencing frequent SSH disconnections with your Raspberry Pi, try the following:
-
-1. Edit SSH configuration:
-
-```bash
-sudo nano /etc/ssh/sshd_config
-```
-
-2. Add or modify these settings:
-
-```
-ClientAliveInterval 60
-ClientAliveCountMax 3
-TCPKeepAlive yes
-```
-
-3. Restart SSH service:
-
-```bash
-sudo systemctl restart ssh
-```
-
-These settings will ensure SSH keeps the connection alive by sending small packets periodically, even when idle. 
