@@ -19,6 +19,6 @@ services:
       - CUPS_PASSWORD=${CUPS_PASSWORD} # Password for CUPS web interface
     # Add ports with "0" at the end to avoid conflicts with system ports
     ports:
-      - "631:631"
-      - "5353:5353/udp" 
+      - "${CUPS_PORT}:631"
+      - "${MDNS_PORT}:5353/udp" 
 
