@@ -18,8 +18,3 @@ services:
       - HOST_NAME=${HOST_NAME} # Your host name (e.g., pi.local for Raspberry Pi)
       - CUPS_USER=${CUPS_USER} # User for CUPS web interface
       - CUPS_PASSWORD=${CUPS_PASSWORD} # Password for CUPS web interface
-    # Ports aren't needed with host network mode, but we'll keep them commented for reference
-    # ports:
-    #   - "${CUPS_PORT}:631"
-    #   - "${MDNS_PORT}:5353/udp"
-
