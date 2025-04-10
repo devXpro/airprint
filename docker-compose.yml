@@ -10,13 +10,13 @@ services:
     # Using bridged network with explicit port mapping for macOS testing
     privileged: true # Required for CUPS to access USB devices (if needed)
     environment:
-      - PRINTER_IP=192.168.68.54 # CHANGE THIS to your Epson L3250 IP address
-      - PRINTER_NAME=Epson_L3250
-      - PRINTER_LOCATION=Home
-      - PRINTER_INFO=Epson L3250 AirPrint
-      - HOST_NAME=pi.local # CHANGE THIS to your host name (e.g., pi.local for Raspberry Pi)
-      - CUPS_USER=admin # User for CUPS web interface
-      - CUPS_PASSWORD=admin # Password for CUPS web interface
+      - PRINTER_IP=${PRINTER_IP} # Epson L3250 IP address
+      - PRINTER_NAME=${PRINTER_NAME}
+      - PRINTER_LOCATION=${PRINTER_LOCATION}
+      - PRINTER_INFO=${PRINTER_INFO}
+      - HOST_NAME=${HOST_NAME} # Your host name (e.g., pi.local for Raspberry Pi)
+      - CUPS_USER=${CUPS_USER} # User for CUPS web interface
+      - CUPS_PASSWORD=${CUPS_PASSWORD} # Password for CUPS web interface
     # Add ports with "0" at the end to avoid conflicts with system ports
     ports:
       - "631:631"
