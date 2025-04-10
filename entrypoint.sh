@@ -30,6 +30,16 @@ sed -i "s/%h/${HOST_NAME}/g" /etc/avahi/services/airprint.service
 echo "${HOST_NAME}" > /etc/hostname
 hostname "${HOST_NAME}"
 
+# Disable SSL/TLS in CUPS to force only http:// URLs (no https://)
+echo "Disabling SSL in CUPS to prevent IPPS protocol usage"
+sed -i 's/^EnableSSL.*/EnableSSL No/' /etc/cups/cupsd.conf
+echo "DefaultEncryption Never" >> /etc/cups/cupsd.conf
+
+# Also add explicit rule to prevent IPPS advertising from Avahi
+echo "Checking for any other Avahi service files that might advertise IPPS..."
+rm -f /etc/avahi/services/*ipps*.service 2>/dev/null || true
+# We're not creating a no-ipps.service file anymore as it caused errors
+
 # Start Avahi daemon but handle MacOS host network differently
 echo "Starting Avahi daemon..."
 # Clean any existing PID files that might cause problems
