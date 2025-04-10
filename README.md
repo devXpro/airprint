@@ -18,7 +18,7 @@ PRINTER_IP=192.168.1.100  # Your printer's IP address
 PRINTER_NAME=Epson_L3250  # Printer name (no spaces)
 PRINTER_LOCATION=Home     # Location description
 PRINTER_INFO="Epson L3250 AirPrint"  # Printer info/description
-HOST_NAME=airprint.local  # Hostname (must be resolvable on your network)
+HOST_NAME=pi.local        # Hostname (must be resolvable on your network (host of raspberry pi))
 CUPS_USER=admin           # CUPS web interface username
 CUPS_PASSWORD=admin       # CUPS web interface password
 ```
