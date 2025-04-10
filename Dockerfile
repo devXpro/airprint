@@ -10,6 +10,7 @@ RUN dpkg --add-architecture armhf && \
     apt-get install -y \
     libc6:armhf \
     libcups2:armhf \
+    libcupsimage2:armhf \
     libstdc++6:armhf
 
 # Install required packages
@@ -26,6 +27,7 @@ RUN apt-get update && apt-get install -y \
     usbutils \
     iputils-ping \
     libcups2 \
+    libcupsimage2 \
     net-tools \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
