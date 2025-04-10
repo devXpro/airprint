@@ -24,6 +24,11 @@ echo "CUPS admin user configured."
 # Update Avahi service configuration with correct hostname
 echo "Updating Avahi service configuration with hostname: ${HOST_NAME}"
 sed -i "s/localhost/${HOST_NAME}/g" /etc/avahi/services/airprint.service
+sed -i "s/%h/${HOST_NAME}/g" /etc/avahi/services/airprint.service
+
+# Ensure hostname is set properly for Avahi by creating /etc/hostname with the proper hostname
+echo "${HOST_NAME}" > /etc/hostname
+hostname "${HOST_NAME}"
 
 # Start Avahi daemon but handle MacOS host network differently
 echo "Starting Avahi daemon..."

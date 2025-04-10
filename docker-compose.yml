@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: epson-airprint
     restart: unless-stopped
+    hostname: ${HOST_NAME} # Set container hostname to match HOST_NAME
     # Using bridged network with explicit port mapping for macOS testing
     privileged: true # Required for CUPS to access USB devices (if needed)
     environment:
